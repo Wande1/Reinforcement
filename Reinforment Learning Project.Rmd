@@ -1,0 +1,255 @@
+---
+title: "REINFORCEMENT LEARNING"
+author: "YEWANDE OGUNBOWALE"
+date: "March 8, 2021"
+output:
+  word_document: default
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+
+## MDP APPROACH FOR 2 X 2 GRID EXAMPLE
+Example; Learning an agent travelling through a 2*2 grid (4 states)
+Red wall prevents direct moves from S1 to S2
+States S1, S2, S3 give reward of -1; state S4 gives reward of +10
+Action: Left, Right Up, and Down
+
+```{r}
+#LIBRARY
+library(MDPtoolbox)
+```
+
+#MDP policy Iteration
+
+#Design an MDP that finds the optimal Policy to that 2 x 2 grid problem.
+#Create individual matrices with pre-specified (random) transition probabilities for each action
+
+
+
+#These transistion matrices reflect the following randomness of action taken vis a vis an action, there is a 70% probability that that action selected will occur. There is a 20% probability the agent will stay in  the same (no action taken). And there is a 10% probability that the agent will move in lateral direction to the action selected.
+
+
+```{r}
+
+library(devtools)
+library(ReinforcementLearning)
+```
+
+# 1. Defining the Set of Actions - Left, Right, Up and Down for 2 x 2 matrix
+
+```{r}
+
+#Up Action
+up=matrix(c( 1, 0, 0, 0,
+             0.7, 0.2, 0.1, 0,
+             0, 0.1, 0.2, 0.7,
+             0, 0, 0, 1),
+          nrow=4,ncol=4,byrow=TRUE)
+
+
+#Agent is in: S1  S2  S3  S4
+#Up <- matrix(c( 1, 0, 0, 0,
+#Goes to:       0.7, 0.2, 0.1, 0,
+#Goes to:       0, 0.1, 0.2, 0.7,
+#Goes to:       0, 0, 0, 1),
+ #    nrow=4,ncol=4,byrow=TRUE) 
+
+#If agent is in state S1 and tries to go up, there is a 100% probability s/he will remain in State S1
+
+
+
+up=matrix(c( 1, 0, 0, 0,
+# If agent is in state S2 and tries to go up, there is a 70% prob that s/he will go up to S1, a 20% prob will remain in S2, and a 10% prob agent will go right to S3.
+      0.7, 0.2, 0.1, 0,
+# If agent is in State S3 and tries to go up, there is a 70% prob that s/he will go up to S4, a 20% prob will remain in S3, and a 10% prob s/he will move left to S2
+      0, 0.1, 0.2, 0.7,
+#Finally, if agent is in State S4 and tries to go Up, there is a 100% prob agent will remain in S4.
+       0, 0, 0, 1),
+    nrow=4,ncol=4,byrow=TRUE)
+
+
+
+up
+
+
+#Down Action
+down=matrix(c(0.3, 0.7, 0, 0,
+ 0, 0.9, 0.1, 0,
+ 0, 0.1, 0.9, 0,
+ 0, 0, 0.7, 0.3),
+ nrow=4,ncol=4,byrow=TRUE)
+
+
+down <- matrix(c(0.3, 0.7, 0, 0,
+# If agent is in state S1 and tries to do down, there is a 70% prob agen will move to S2 and a 30%
+  0, 0.9, 0.1, 0,
+  0, 0.1, 0.9, 0,
+  0, 0, 0.7, 0.3),
+  nrow=4,ncol=4,byrow=TRUE)
+
+down
+
+#Left Action
+left=matrix(c( 0.9, 0.1, 0, 0,
+ 0.1, 0.9, 0, 0,
+ 0, 0.7, 0.2, 0.1,
+ 0, 0, 0.1, 0.9),
+ nrow=4,ncol=4,byrow=TRUE)
+
+#If is in state S1 and tries to go left, there is a 90% probability s/he will remain in state S1 and 10% prob agent will go down to S2
+left <- matrix(c( 0.9, 0.1, 0, 0,
+#agent is in a State S2 and tries to go Left, there is a 90% probability agent will remain in state S2(70% prob hits boundary plus 20% stays in palce and a 10% prob agent moves laterally to S1.
+           0.1, 0.9, 0, 0,
+#If agent is in state S3 and tries to go Left, there is a 70% probability s/he will move left to S2, 20% prob agent will remain in S3, and a 10% prob agent will go up laterally to S4.
+          0, 0.7, 0.2, 0.1,
+#If agent is in State S4 and tries to go left, there is a  90% probability agent will remain in S4 (70% prob hits wall, plus 20% remains in place) and a 10% prob agent moves down laterally to S3.
+           0, 0, 0.1, 0.9),
+    nrow=4,ncol=4,byrow=TRUE)
+left
+
+
+
+
+#Right Action
+right=matrix(c( 0.9, 0.1, 0, 0,  0.1, 0.2, 0.7, 0,
+                0, 0, 0.9, 0.1,
+                0, 0, 0.1, 0.9),
+             nrow=4,ncol=4,byrow=TRUE)
+
+
+right <- matrix(c( 0.9, 0.1, 0,
+#If agent is in State S2 and tries to go Right, there is a 70% probability agent will move in sate S3, a 20% prob agent will remain in S2, and a 10% probability moves laterally to S1.
+        0,  0.1, 0.2, 0.7, 0,
+# If agent is in state S3 and tries to go right, there is a 90% probability agent will stay in S3 (70% hits wall plus 20% stays in place in S3) and a 10% prob moves laterally up to S4.
+          0, 0, 0.9, 0.1,
+#If agent is in state S4 and tries to go Right, there is a 90% probability agent will stay in S4 (70% hits wall plus 20% stays in place in S4) and a 10% prob moves laterally down to S3.
+       0, 0, 0.1, 0.9),
+    nrow=4,ncol=4,byrow=TRUE)
+right
+
+#all of them
+up
+
+left
+
+down
+
+right
+
+
+
+#Aggregate previous matrices to create transistion probabilities into list T
+T <- list(up=up, left=left, down=down, right=right)
+T
+#T = Transistion probability
+
+
+
+#Create matrix with rewards:
+
+R=matrix(c( -1, -1, -1, -1,
+            -1, -1, -1, -1,
+            -1, -1, -1, -1,
+            10, 10, 10, 10),
+         nrow=4,ncol=4,byrow=TRUE)
+
+
+#R = Reward matrix
+
+#If you enter S1 from anywhere you get reward of -1
+R=matrix(c( -1, -1, -1, -1,
+#If you enter S2 from anywhere you get reward of -1   
+        -1, -1, -1, -1,
+#If you enter S3 from anywhere you get reward of -1
+        -1, -1, -1, -10,
+#If you enter S4 from anywhere you get reward of -1
+     10, 10, 10, 10),
+   nrow=4,ncol=4,byrow=TRUE)
+R
+
+
+
+
+
+#Check if this provides a well-defined MDP
+mdp_check(T, R) # empty string ==> ok
+
+
+#Policy iteration with discount factor g = 0.9
+m <- mdp_policy_iteration(P=T,
+                          R=R,
+                          discount=0.9)
+
+
+#Display optimal policy p
+m$policy
+
+names(T)[m$policy]
+
+#Display value funtion vp
+m$V
+#The value shows the movement of following this policy as I move from state to state.
+
+
+#REINFORCEMENT LEARNING
+
+# Viewing the pre-built function for each state, action and reward
+
+env <- gridworldEnvironment
+print(env)
+
+states <- c("S1", "S2", "S3", "S4")
+states
+actions <- c("up", "down", "left", "right")
+actions
+
+
+# Sample N = 1000 random sequences from the environment
+
+#Data format must be (s, a, r,s_new) tuples
+#as row in a dataframe structure.
+
+data <- sampleExperience(N = 1000,
+                         env = env,
+                         states = states,
+                         actions = actions)
+
+
+head(data)
+
+
+# Define reinforcement learning parameter
+control <- list(alpha = 0.1, #low learning rate
+                gamma = 0.5, #middle discount factor
+                epsilon = 0.1) #low exploration factor
+
+control
+
+
+
+#MODEL
+
+model <- ReinforcementLearning(data, 
+                               s = "State",
+                               a = "Action",
+                               r = "Reward",
+                               s_new = "NextState",
+                               control = control)
+
+#Print result
+print(model)
+
+#From the table above, the reinforcement learning program infers the best policy. The best policy is if you're in S1 go up, if you're in S2 go left, if you're in S3 down, if you,re in S4 go right. This is the most important output from the reinforment learning function.
+
+
+
+
+
+
+
+```
+
+#CONCLUSION
+At present, machines are adept at performing repetitive tasks and solve complex problems easily but cannot solve easy tasks without getting into complexity. This is why, making machines perform simple tasks such as walking, moving hands or even playing tic-tac-toe is very difficult though we, as humans, perform this every day without much effort. With reinforcement learning, these tasks can be trained with an order of complexity.
